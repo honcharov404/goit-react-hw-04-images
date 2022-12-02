@@ -26,13 +26,6 @@ export const App = () => {
     setImages(prevState => prevState.concat(loadedImages));
   }, [page, searchPictures, serchQuery]);
 
-  // const loadPictures = useCallback(async () => {
-  //   const loadedImages = await searchPictures(serchQuery, page);
-  //   const newImages = images.concat(loadedImages);
-  //   console.log('newImages: ', newImages);
-  //   setImages(newImages);
-  // }, [images, page, searchPictures, serchQuery]);
-
   useEffect(() => {
     if (serchQuery !== '') {
       loadPictures();
