@@ -1,47 +1,37 @@
-import { Component } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 import s from './Modal.module.css';
 
-export class Modal extends Component {
-  static defaultProps = {
-    removeImageToOpen: () => {},
-  };
-
-  static propTypes = {
-    children: PropTypes.node,
-    removeImageToOpen: PropTypes.func,
-  };
-
-  componentDidMount() {
-    window.addEventListener('keydown', this.closeModal);
-  }
-
-  closeModal = e => {
+const Modal = ({ removeImageToOpen = () => {}, children }) => {
+  const closeModal = useCallback(e => {
     if (e.code === 'Escape') {
-      this.props.removeImageToOpen();
+      removeImageToOpen();
     }
-  };
+  }, [removeImageToOpen]);
 
-  closeModalByClick = e => {
+  useEffect(() => {
+    window.addEventListener('keydown', closeModal);
+
+    return () => window.removeEventListener('keydown', closeModal);
+  }, [closeModal]);
+
+  const closeModalByClick = e => {
     if (e.currentTarget.isEqualNode(e.target)) {
-      this.props.removeImageToOpen();
+      removeImageToOpen();
     }
   };
 
-  componentWillUnmount() {
-    window.removeEventListener('keydown', this.closeModal);
-  }
+  return (
+    <div className={s.Overlay} onClick={closeModalByClick}>
+      <div className={s.Modal}>{children}</div>
+    </div>
+  );
+};
 
-  render() {
-    const { children } = this.props;
-
-    return (
-      <div className={s.Overlay} onClick={this.closeModalByClick}>
-        <div className={s.Modal}>{children}</div>
-      </div>
-    );
-  }
-}
+Modal.propTypes = {
+  children: PropTypes.node.isRequired,
+  removeImageToOpen: PropTypes.func.isRequired,
+};
 
 export default Modal;

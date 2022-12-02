@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import { getPictures } from 'services/api';
 import Button from './Button/Button';
@@ -6,61 +6,56 @@ import ImageGallery from './ImageGallery/ImageGallery';
 import Loader from './Loader/Loader';
 import Searchbar from './Searchbar/Searchbar';
 
-export class App extends Component {
-  state = {
-    serchQuery: '',
-    isLoading: false,
-    page: 1,
-    images: [],
-  };
+export const App = () => {
+  const [serchQuery, setSerchQuery] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [images, setImages] = useState([]);
 
-  componentDidUpdate(_, prevState) {
-    if (
-      prevState.page !== this.state.page ||
-      prevState.serchQuery !== this.state.serchQuery
-    ) {
-      this.loadPictures();
-    }
-  }
-
-  searchPictures = async (serchQuery, page) => {
-    this.setState({ isLoading: true });
+  const searchPictures = useCallback(async () => {
+    setIsLoading(true);
 
     const resp = await getPictures(serchQuery, page);
 
-    this.setState({ isLoading: false });
+    setIsLoading(false);
     return resp;
-  };
+  }, [page, serchQuery]);
 
-  loadPictures = async () => {
-    const page = this.state.page;
-    const images = await this.searchPictures(this.state.serchQuery, page);
-    const newImages = this.state.images.concat(images);
-    this.setState({ images: newImages });
-  };
+  const loadPictures = useCallback(async () => {
+    const loadedImages = await searchPictures(serchQuery, page);
+    const newImages = images.concat(loadedImages);
+    console.log('newImages: ', newImages);
+    setImages(newImages);
+  }, [images, page, searchPictures, serchQuery]);
 
-  onSubmit = async e => {
+  useEffect(() => {
+    if (serchQuery !== '') {
+      loadPictures();
+    }
+  }, [loadPictures, page, serchQuery]);
+
+  const onSubmit = async e => {
     e.preventDefault();
 
-    const serchQuery = e.currentTarget.elements.searchFormInput.value;
+    const request = e.currentTarget.elements.searchFormInput.value;
 
-    this.setState({ serchQuery, page: 1, images: [] });
+    setSerchQuery(request);
+    setPage(1);
+    setImages([]);
   };
 
-  onIncrementPage = () => {
-    this.setState(prevState => ({ page: prevState.page + 1 }));
+  const onIncrementPage = () => {
+    setPage(prevPage => prevPage + 1);
   };
 
-  render() {
-    const { images, isLoading } = this.state;
+  console.log('images: ', images);
 
-    return (
-      <div className="App">
-        <Searchbar onSubmit={this.onSubmit} />
-        <ImageGallery images={images} />
-        {isLoading && <Loader />}
-        {!!images.length && <Button loadMore={this.onIncrementPage} />}
-      </div>
-    );
-  }
-}
+  return (
+    <div className="App">
+      <Searchbar onSubmit={onSubmit} />
+      <ImageGallery images={images} />
+      {isLoading && <Loader />}
+      {!!images.length && <Button loadMore={onIncrementPage} />}
+    </div>
+  );
+};

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
 import Modal from 'components/Modal/Modal';
@@ -6,57 +6,48 @@ import ImageGalleryItem from 'components/ImageGalleryItem/ImageGalleryItem';
 
 import s from './ImageGallery.module.css';
 
-export class ImageGallery extends Component {
-  state = {
-    imageToOpen: '',
+const ImageGallery = ({ images = [] }) => {
+  const [imageToOpen, setImageToOpen] = useState('');
+
+  const setOpenImage = largeImageURL => {
+    setImageToOpen(largeImageURL);
   };
 
-  static defaultProps = {
-    images: [],
+  const removeImageToOpen = () => {
+    setImageToOpen('');
   };
 
-  static propTypes = {
-    images: PropTypes.arrayOf(PropTypes.object).isRequired,
-  };
+  // const { images } = this.props;
+  console.log(images);
+  return (
+    <>
+      {imageToOpen && (
+        <Modal removeImageToOpen={removeImageToOpen}>
+          <img src={imageToOpen} alt="" />
+        </Modal>
+      )}
+      {!!images.length ? (
+        <ul className={s.ImageGallery}>
+          {images.map(image => {
+            return (
+              <ImageGalleryItem
+                key={image.id}
+                largeImageURL={image.largeImageURL}
+                webformatURL={image.webformatURL}
+                setOpenImage={setOpenImage}
+              />
+            );
+          })}
+        </ul>
+      ) : (
+        <></>
+      )}
+    </>
+  );
+};
 
-  setOpenImage = largeImageURL => {
-    this.setState({ imageToOpen: largeImageURL });
-  };
-
-  removeImageToOpen = () => {
-    this.setState({ imageToOpen: '' });
-  };
-
-  render() {
-    const { imageToOpen } = this.state;
-    const { images } = this.props;
-
-    return (
-      <>
-        {imageToOpen && (
-          <Modal removeImageToOpen={this.removeImageToOpen}>
-            <img src={imageToOpen} alt="" />
-          </Modal>
-        )}
-        {!!images.length ? (
-          <ul className={s.ImageGallery}>
-            {images.map(image => {
-              return (
-                <ImageGalleryItem
-                  key={image.id}
-                  largeImageURL={image.largeImageURL}
-                  webformatURL={image.webformatURL}
-                  setOpenImage={this.setOpenImage}
-                />
-              );
-            })}
-          </ul>
-        ) : (
-          <></>
-        )}
-      </>
-    );
-  }
-}
+ImageGallery.propTypes = {
+  images: PropTypes.arrayOf(PropTypes.object).isRequired,
+};
 
 export default ImageGallery;
