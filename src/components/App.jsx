@@ -23,10 +23,15 @@ export const App = () => {
 
   const loadPictures = useCallback(async () => {
     const loadedImages = await searchPictures(serchQuery, page);
-    const newImages = images.concat(loadedImages);
-    console.log('newImages: ', newImages);
-    setImages(newImages);
-  }, [images, page, searchPictures, serchQuery]);
+    setImages(prevState => prevState.concat(loadedImages));
+  }, [page, searchPictures, serchQuery]);
+
+  // const loadPictures = useCallback(async () => {
+  //   const loadedImages = await searchPictures(serchQuery, page);
+  //   const newImages = images.concat(loadedImages);
+  //   console.log('newImages: ', newImages);
+  //   setImages(newImages);
+  // }, [images, page, searchPictures, serchQuery]);
 
   useEffect(() => {
     if (serchQuery !== '') {
@@ -47,8 +52,6 @@ export const App = () => {
   const onIncrementPage = () => {
     setPage(prevPage => prevPage + 1);
   };
-
-  console.log('images: ', images);
 
   return (
     <div className="App">

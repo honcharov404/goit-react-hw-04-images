@@ -17,8 +17,6 @@ const ImageGallery = ({ images = [] }) => {
     setImageToOpen('');
   };
 
-  // const { images } = this.props;
-  console.log(images);
   return (
     <>
       {imageToOpen && (
